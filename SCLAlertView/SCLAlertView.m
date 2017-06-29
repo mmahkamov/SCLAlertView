@@ -308,6 +308,7 @@ SCLTimerDisplay *buttonTimer;
         sz = _rootViewController.view.frame.size;
     }
     
+#if __IPHONE_OS_VERSION_MIN_REQUIRED < 80000
     if (SYSTEM_VERSION_LESS_THAN(@"8.0"))
     {
         // iOS versions before 7.0 did not switch the width and height on device roration
@@ -317,6 +318,7 @@ SCLTimerDisplay *buttonTimer;
             sz = CGSizeMake(ssz.height, ssz.width);
         }
     }
+#endif
     
     // Set new background frame
     CGRect newBackgroundFrame = self.backgroundView.frame;
