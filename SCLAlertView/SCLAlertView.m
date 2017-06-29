@@ -230,12 +230,14 @@ SCLTimerDisplay *buttonTimer;
     _viewText.font = [UIFont fontWithName:_bodyTextFontFamily size:_bodyFontSize];
     _viewText.frame = CGRectMake(12.0f, _subTitleY, _windowWidth - 24.0f, _subTitleHeight);
     
+#if __IPHONE_OS_VERSION_MIN_REQUIRED < 80000
     if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0"))
     {
         _viewText.textContainerInset = UIEdgeInsetsZero;
         _viewText.textContainer.lineFragmentPadding = 0;
         self.automaticallyAdjustsScrollViewInsets = NO;
     }
+#endif
     
     // Content View
     _contentView.backgroundColor = [UIColor whiteColor];
@@ -802,7 +804,7 @@ SCLTimerDisplay *buttonTimer;
     if(_usingNewWindow)
     {
         // Save previous window
-        self.previousWindow = [UIApplication sharedApplication].keyWindow;
+        self.previousWindow = [self keyWindow];
         self.backgroundView.frame = _SCLAlertWindow.bounds;
         
         // Add window subview
@@ -1176,12 +1178,26 @@ SCLTimerDisplay *buttonTimer;
 
 - (CGRect)mainScreenFrame
 {
-    return [self isAppExtension] ? _extensionBounds : [UIApplication sharedApplication].keyWindow.bounds;
+    if([self isAppExtension]) {
+        return _extensionBounds;
+    } else {
+        UIApplication *application = [UIApplication performSelector:@selector(sharedApplication)];
+        return application.keyWindow.bounds;
+    }
 }
 
 - (BOOL)isAppExtension
 {
     return [[NSBundle mainBundle].executablePath rangeOfString:@".appex/"].location != NSNotFound;
+}
+
+- (UIWindow *)keyWindow {
+    if([self isAppExtension]) {
+        return nil;
+    } else {
+        UIApplication *application = [UIApplication performSelector:@selector(sharedApplication)];
+        return application.keyWindow;
+    }
 }
 
 #pragma mark - Background Effects
@@ -1196,7 +1212,7 @@ SCLTimerDisplay *buttonTimer;
 
 - (void)makeBlurBackground
 {
-    UIView *appView = (_usingNewWindow) ? [UIApplication sharedApplication].keyWindow.subviews.lastObject : _rootViewController.view;
+    UIView *appView = (_usingNewWindow) ? [self keyWindow].subviews.lastObject : _rootViewController.view;
     UIImage *image = [UIImage convertViewToImage:appView];
     UIImage *blurSnapshotImage = [image applyBlurWithRadius:5.0f
                                                   tintColor:[UIColor colorWithWhite:0.2f

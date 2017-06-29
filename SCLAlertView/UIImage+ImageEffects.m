@@ -296,7 +296,10 @@
 
 + (UIImage *)convertViewToImage
 {
-    UIWindow *keyWindow = [[UIApplication sharedApplication]keyWindow];
+    // make extension friendly
+    UIApplication *application = [UIApplication performSelector:@selector(sharedApplication)];
+    
+    UIWindow *keyWindow = [application keyWindow];
     CGRect rect = [keyWindow bounds];
     UIGraphicsBeginImageContextWithOptions(rect.size, YES, 0.0f);
     CGContextRef context = UIGraphicsGetCurrentContext();
